@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "prisma/*": ["prisma/*"],
+      "controllers/*": ["src/controllers/*"],
+      "routers/*": ["src/routers/*"],
+      "src/*": ["src/*"]
+    },
+    "target": "ES2020",
+    "module": "CommonJS",
+    // "rootDir": "./src",
+    "outDir": "./dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true, // optional if importing JSON
+    "moduleResolution": "node" // makes path aliases behave like Node
+  },
+  "include": ["src", "prisma"],
+  "exclude": ["node_modules", "dist"]
+}
