@@ -1,6 +1,7 @@
 services:
   app:
     build: .
+    container_name: teachers-portal-app
     ports:
       - "3000:3000"
     environment:
@@ -18,6 +19,7 @@ services:
 
   db:
     image: mysql:8.0
+    container_name: teachers-portal-db
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: app_db

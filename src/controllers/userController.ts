@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { createUserSchema } from "schemas/userSchema";
 import prisma from "prisma/client";
 
 export const getUsers = async (_req: Request, res: Response) => {
@@ -12,14 +13,27 @@ export const getUsers = async (_req: Request, res: Response) => {
 };
 
 export const createUser = async (req: Request, res: Response) => {
-  const { name, email } = req.body;
+  const parseResult = createUserSchema.safeParse(req.body);
+
+  if (!parseResult.success) {
+    return res.status(400).json({
+      errors: parseResult.error.format(),
+    });
+  }
+
+  const { name, email } = parseResult.data;
+
   try {
-    const newUser = await prisma.user.create({
+    const user = await prisma.user.create({
       data: { name, email },
     });
-    res.json(newUser);
-  } catch (error) {
-    console.error(error);
-    res.status(400).json({ error: 'Failed to create user' });
+
+    res.status(201).json(user);
+  } catch (error: any) {
+    if (error.code === "P2002") {
+      return res.status(409).json({ error: "Email already exists" });
+    }
+
+    res.status(500).json({ error: "Something went wrong" });
   }
 };

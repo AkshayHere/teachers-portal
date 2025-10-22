@@ -5,6 +5,7 @@
       "prisma/*": ["prisma/*"],
       "controllers/*": ["src/controllers/*"],
       "routers/*": ["src/routers/*"],
+      "schemas/*": ["src/schemas/*"],
       "src/*": ["src/*"]
     },
     "target": "ES2020",
