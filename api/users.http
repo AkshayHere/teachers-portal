@@ -9,7 +9,7 @@ POST http://localhost:3000/api/users
 Content-Type: application/json
 
 {
-    "name": "Akshay",
-    "email": "akshay@gmail.com"
+    "name": "Teddy",
+    "email": "teddy@gmail.com"
 }
 ###
