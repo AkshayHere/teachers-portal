@@ -21,13 +21,17 @@ model User {
 }
 
 model Teacher {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  createdAt DateTime @default(now())
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  students  Student[]
 }
 
 model Student {
   id        Int      @id @default(autoincrement())
   email     String   @unique
   createdAt DateTime @default(now())
+  teacherId Int
+  teacher   Teacher  @relation(fields: [teacherId], references: [id])
 }

@@ -1,6 +1,22 @@
 import { Request, Response } from "express";
-// import { createUserSchema } from "schemas/userSchema";
 import prisma from "prisma/client";
+import {
+  createTeacherSchema,
+  getCommonStudentsQuerySchema,
+} from "schemas/teacherSchema";
+import {
+  HTTP_CODE_DUPLICATE_RECORD,
+  HTTP_CODE_SERVER_ERROR,
+  HTTP_CODE_SUCCESS,
+  HTTP_CODE_SUCCESS_NO_CONTENT,
+  SERVER_ERROR,
+  ZOD_DUPLICATE_RECORD_CODE,
+} from "src/constants/generalConstants";
+import {
+  checkIfStudentsExists,
+  checkIfTeacherExists,
+  getStudentsByTeacherEmails,
+} from "src/services/teacherService";
 
 export const getTeachers = async (_req: Request, res: Response) => {
   try {
@@ -8,32 +24,78 @@ export const getTeachers = async (_req: Request, res: Response) => {
     res.json(teachers);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: SERVER_ERROR });
   }
 };
 
-// export const createUser = async (req: Request, res: Response) => {
-//   const parseResult = createUserSchema.safeParse(req.body);
+export const createTeacher = async (req: Request, res: Response) => {
+  const parseResult = createTeacherSchema.safeParse(req.body);
+  if (!parseResult.success) {
+    return res.status(400).json({
+      message: "Validation failed",
+      errors: parseResult.error.issues.map((err) => ({
+        path: err.path.join("."),
+        message: err.message,
+      })),
+    });
+  }
 
-//   if (!parseResult.success) {
-//     return res.status(400).json({
-//       errors: parseResult.error.format(),
-//     });
-//   }
+  const { teacher, students } = parseResult.data;
+  console.log("teacher: ", teacher);
+  console.log("students: ", students);
 
-//   const { name, email } = parseResult.data;
+  // Check if teacher exists, before we insert
+  const isTeacherExists = await checkIfTeacherExists(teacher);
+  if (isTeacherExists) {
+    res
+      .status(HTTP_CODE_DUPLICATE_RECORD)
+      .json({ error: "Teacher email already exists." });
+  }
 
-//   try {
-//     const user = await prisma.user.create({
-//       data: { name, email },
-//     });
+  const isStudentsExists = await checkIfStudentsExists(students);
+  if (isStudentsExists) {
+    res
+      .status(HTTP_CODE_DUPLICATE_RECORD)
+      .json({ error: "Student email already exists." });
+  }
 
-//     res.status(201).json(user);
-//   } catch (error: any) {
-//     if (error.code === "P2002") {
-//       return res.status(409).json({ error: "Email already exists" });
-//     }
+  const studentsDetails = students.map((student) => {
+    return {
+      email: student,
+    };
+  });
+  console.log("studentsDetails: ", studentsDetails);
 
-//     res.status(500).json({ error: "Something went wrong" });
-//   }
-// };
+  try {
+    const teacherData = await prisma.teacher.create({
+      data: {
+        email: teacher,
+        students: {
+          create: studentsDetails,
+        },
+      },
+    });
+    console.log("teacherData: ", teacherData);
+    res.status(HTTP_CODE_SUCCESS).json(teacherData);
+  } catch (error: any) {
+    if (error.code === ZOD_DUPLICATE_RECORD_CODE) {
+      console.error("error > ", error);
+    }
+    res.status(HTTP_CODE_SERVER_ERROR).json({ error: SERVER_ERROR });
+  }
+};
+
+export const getCommonStudents = async (req: Request, res: Response) => {
+  const parseResult = getCommonStudentsQuerySchema.parse(req.query);
+  const teacherEmails = parseResult.teacher;
+  console.log("teacherEmails: ", teacherEmails);
+
+  try {
+    const studentDetails = await getStudentsByTeacherEmails(teacherEmails);
+    console.log("studentDetails: ", studentDetails);
+    res.json({ students: studentDetails });
+  } catch (error: any) {
+    console.error("error > ", error);
+    res.status(HTTP_CODE_SERVER_ERROR).json({ error: SERVER_ERROR });
+  }
+};
