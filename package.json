@@ -5,11 +5,13 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only --poll --require tsconfig-paths/register src/index.ts",
-    "build": "tsc",
+    "build": "npm run lint && tsc",
     "start": "node dist/index.js",
     "seed": "ts-node --require tsconfig-paths/register prisma/seed.ts",
     "migrate": "npx prisma migrate deploy",
-    "generate": "npx prisma generate"
+    "generate": "npx prisma generate",
+    "lint": "eslint . --ext .js,.ts",
+    "lint:fix": "eslint . --ext .js,.ts --fix"
   },
   "keywords": [],
   "author": "",
@@ -17,7 +19,6 @@
   "type": "commonjs",
   "dependencies": {
     "@prisma/client": "^6.17.1",
-    "chance": "^1.1.13",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "mysql2": "^3.15.3",
@@ -25,10 +26,17 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@eslint/js": "^9.38.0",
+    "@types/chance": "^1.1.7",
     "@types/express": "^5.0.3",
     "@types/node": "^24.9.1",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
+    "eslint": "^9.38.0",
+    "globals": "^16.4.0",
     "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.2"
   }
 }

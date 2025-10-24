@@ -1,4 +1,5 @@
 import prisma from "prisma/client";
+import { IStudent } from "src/modals/teacher";
 
 /**
  * Check if the teacher already exists
@@ -34,7 +35,6 @@ export const checkIfStudentsExists = async (
     },
   });
 
-  //   return existingStudents.map((stdt: any) => stdt.email);
   return existingStudents.length > 0;
 };
 
@@ -71,7 +71,7 @@ export const getStudentsByTeacherEmails = async (
   });
 
   console.log("students: ", students);
-  return students.map((student: any) => student.email);
+  return students.map((student: IStudent) => student.email);
 };
 
 export const getValidStudentsByEmails = async (
@@ -86,7 +86,7 @@ export const getValidStudentsByEmails = async (
   });
 
   console.log("students: ", students);
-  return students.map((student: any) => student.email);
+  return students.map((student: IStudent) => student.email);
 };
 
 export const checkIfStudentsActive = async (

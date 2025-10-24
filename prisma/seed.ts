@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
-const Chance = require("chance");
+import Chance from "chance";
+// const Chance = require("chance");
 
 const prisma = new PrismaClient();
 const chance = new Chance();

@@ -29,11 +29,8 @@ export const createUser = async (req: Request, res: Response) => {
     });
 
     res.status(201).json(user);
-  } catch (error: any) {
-    if (error.code === "P2002") {
-      return res.status(409).json({ error: "Email already exists" });
-    }
-
+  } catch (error: unknown) {
+    console.error(`Email already exists: ${error}`);
     res.status(500).json({ error: "Something went wrong" });
   }
 };

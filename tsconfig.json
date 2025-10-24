@@ -15,7 +15,8 @@
     "strict": true,
     "esModuleInterop": true,
     "resolveJsonModule": true, // optional if importing JSON
-    "moduleResolution": "node" // makes path aliases behave like Node
+    "moduleResolution": "node", // makes path aliases behave like Node
+    "useUnknownInCatchVariables": true
   },
   "include": ["src", "prisma"],
   "exclude": ["node_modules", "dist"]

@@ -13,7 +13,6 @@ import {
   HTTP_CODE_SUCCESS_NO_CONTENT,
   HTTP_CODE_VALIDATION_ERROR,
   SERVER_ERROR,
-  ZOD_DUPLICATE_RECORD_CODE,
 } from "src/constants/generalConstants";
 import {
   checkIfStudentsExists,
@@ -87,10 +86,8 @@ export const createTeacher = async (req: Request, res: Response) => {
     } else {
       res.status(HTTP_CODE_SERVER_ERROR).json({ error: SERVER_ERROR });
     }
-  } catch (error: any) {
-    if (error.code === ZOD_DUPLICATE_RECORD_CODE) {
-      console.error("error > ", error);
-    }
+  } catch (error: unknown) {
+    console.error("error: ", error);
     res.status(HTTP_CODE_SERVER_ERROR).json({ error: SERVER_ERROR });
   }
 };
@@ -104,7 +101,7 @@ export const getCommonStudents = async (req: Request, res: Response) => {
     const studentDetails = await getStudentsByTeacherEmails(teacherEmails);
     console.log("studentDetails: ", studentDetails);
     res.json({ students: studentDetails });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("error > ", error);
     res.status(HTTP_CODE_SERVER_ERROR).json({ error: SERVER_ERROR });
   }
@@ -140,7 +137,7 @@ export const suspendStudentByEmail = async (req: Request, res: Response) => {
         .json({ message: "Unable to suspend student." });
     }
     res.status(HTTP_CODE_SUCCESS_NO_CONTENT).send();
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("error > ", error);
     res.status(HTTP_CODE_SERVER_ERROR).json({ error: SERVER_ERROR });
   }
@@ -184,7 +181,7 @@ export const sendNotificationForStudents = async (
     res.status(HTTP_CODE_SUCCESS).json({
       recipients: validStudents,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("error > ", error);
     res.status(HTTP_CODE_SERVER_ERROR).json({ error: SERVER_ERROR });
   }
