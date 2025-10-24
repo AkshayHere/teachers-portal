@@ -61,6 +61,7 @@ export const getStudentsByTeacherEmails = async (
       teacher: {
         email: { in: teacherEmails },
       },
+      isSuspended: false,
     },
     include: {
       teacher: {
@@ -71,4 +72,60 @@ export const getStudentsByTeacherEmails = async (
 
   console.log("students: ", students);
   return students.map((student: any) => student.email);
+};
+
+export const getValidStudentsByEmails = async (
+  studentEmails: string[]
+): Promise<string[]> => {
+  console.log("studentEmails >> ", studentEmails);
+  const students = await prisma.student.findMany({
+    where: {
+      email: { in: studentEmails },
+      isSuspended: false,
+    },
+  });
+
+  console.log("students: ", students);
+  return students.map((student: any) => student.email);
+};
+
+export const checkIfStudentsActive = async (
+  studentEmail: string
+): Promise<boolean> => {
+  const students = await prisma.student.findFirst({
+    where: {
+      email: studentEmail,
+      isSuspended: false,
+    },
+  });
+
+  return Boolean(students);
+};
+
+export const suspendStudent = async (
+  studentEmail: string
+): Promise<boolean> => {
+  console.log("studentEmail >> ", studentEmail);
+  // Check if the student is active
+  const isExists = checkIfStudentsActive(studentEmail);
+  console.log("isExists >> ", isExists);
+  if (!isExists) {
+    return false;
+  }
+
+  const isUpdated = await prisma.student.update({
+    where: { email: studentEmail },
+    data: { isSuspended: true },
+  });
+
+  console.log("isUpdated : ", isUpdated);
+  return true;
+};
+
+export const extractEmailsFromNotification = (text: string): string[] => {
+  const matches = text.match(
+    /@([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g
+  );
+  if (!matches) return [];
+  return matches.map((m) => m.slice(1).toLowerCase());
 };

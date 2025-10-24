@@ -29,9 +29,10 @@ model Teacher {
 }
 
 model Student {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  createdAt DateTime @default(now())
-  teacherId Int
-  teacher   Teacher  @relation(fields: [teacherId], references: [id])
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  createdAt   DateTime @default(now())
+  isSuspended Boolean  @default(false)
+  teacherId   Int
+  teacher     Teacher  @relation(fields: [teacherId], references: [id])
 }

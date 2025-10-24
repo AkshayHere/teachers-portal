@@ -9,13 +9,34 @@ POST http://localhost:3000/api/teachers/register
 Content-Type: application/json
 
 {
-  "teacher": "captain-america@gmail.com",
-  "students": ["peggy-carter@gmail.com"]
+  "teacher": "hulk@gmail.com",
+  "students": ["bruce-banner@gmail.com"]
 }
 
 ###
 
-GET http://localhost:3000/api/commonstudents?teacher=teacherken%40gmail.com&teacher=clarkkent%40gmail.com
+GET http://localhost:3000/api/commonstudents?teacher=hulk%40gmail.com&teacher=clarkkent%40gmail.com
 Content-Type: application/json
+
+###
+
+POST http://localhost:3000/api/suspend
+Content-Type: application/json
+
+{
+  "student": "bruce-banner@gmail.com"
+}
+
+###
+
+###
+
+POST http://localhost:3000/api/retrievefornotifications
+Content-Type: application/json
+
+{
+  "teacher":  "teacherken@gmail.com",
+  "notification": "Hello students! @studentjon@gmail.com @bruce-banner@gmail.com @studentmiche@gmail.com"
+}
 
 ###

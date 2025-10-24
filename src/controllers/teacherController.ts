@@ -3,19 +3,25 @@ import prisma from "prisma/client";
 import {
   createTeacherSchema,
   getCommonStudentsQuerySchema,
+  suspendStudentSchema,
+  teacherNotificationSchema,
 } from "schemas/teacherSchema";
 import {
   HTTP_CODE_DUPLICATE_RECORD,
   HTTP_CODE_SERVER_ERROR,
   HTTP_CODE_SUCCESS,
   HTTP_CODE_SUCCESS_NO_CONTENT,
+  HTTP_CODE_VALIDATION_ERROR,
   SERVER_ERROR,
   ZOD_DUPLICATE_RECORD_CODE,
 } from "src/constants/generalConstants";
 import {
   checkIfStudentsExists,
   checkIfTeacherExists,
+  extractEmailsFromNotification,
   getStudentsByTeacherEmails,
+  getValidStudentsByEmails,
+  suspendStudent,
 } from "src/services/teacherService";
 
 export const getTeachers = async (_req: Request, res: Response) => {
@@ -76,7 +82,11 @@ export const createTeacher = async (req: Request, res: Response) => {
       },
     });
     console.log("teacherData: ", teacherData);
-    res.status(HTTP_CODE_SUCCESS).json(teacherData);
+    if (teacherData) {
+      res.status(HTTP_CODE_SUCCESS_NO_CONTENT).send();
+    } else {
+      res.status(HTTP_CODE_SERVER_ERROR).json({ error: SERVER_ERROR });
+    }
   } catch (error: any) {
     if (error.code === ZOD_DUPLICATE_RECORD_CODE) {
       console.error("error > ", error);
@@ -94,6 +104,86 @@ export const getCommonStudents = async (req: Request, res: Response) => {
     const studentDetails = await getStudentsByTeacherEmails(teacherEmails);
     console.log("studentDetails: ", studentDetails);
     res.json({ students: studentDetails });
+  } catch (error: any) {
+    console.error("error > ", error);
+    res.status(HTTP_CODE_SERVER_ERROR).json({ error: SERVER_ERROR });
+  }
+};
+
+/**
+ * POST
+ * @param req
+ * @param res
+ * @returns
+ */
+export const suspendStudentByEmail = async (req: Request, res: Response) => {
+  const parseResult = suspendStudentSchema.safeParse(req.body);
+  if (!parseResult.success) {
+    return res.status(400).json({
+      message: "Validation failed",
+      errors: parseResult.error.issues.map((err) => ({
+        path: err.path.join("."),
+        message: err.message,
+      })),
+    });
+  }
+
+  const { student } = parseResult.data;
+  console.log("student: ", student);
+
+  try {
+    const isSuspended = await suspendStudent(student);
+    console.log("isSuspended: ", isSuspended);
+    if (!isSuspended) {
+      res
+        .status(HTTP_CODE_VALIDATION_ERROR)
+        .json({ message: "Unable to suspend student." });
+    }
+    res.status(HTTP_CODE_SUCCESS_NO_CONTENT).send();
+  } catch (error: any) {
+    console.error("error > ", error);
+    res.status(HTTP_CODE_SERVER_ERROR).json({ error: SERVER_ERROR });
+  }
+};
+
+export const sendNotificationForStudents = async (
+  req: Request,
+  res: Response
+) => {
+  const parseResult = teacherNotificationSchema.safeParse(req.body);
+  if (!parseResult.success) {
+    return res.status(400).json({
+      message: "Validation failed",
+      errors: parseResult.error.issues.map((err) => ({
+        path: err.path.join("."),
+        message: err.message,
+      })),
+    });
+  }
+
+  const { teacher, notification } = parseResult.data;
+  console.log("teacher: ", teacher);
+  console.log("notification: ", notification);
+
+  try {
+    const studentEmails = await getStudentsByTeacherEmails([teacher]);
+    console.log("studentEmails: ", studentEmails);
+
+    // Get notified emails
+    const mentionedEmails = extractEmailsFromNotification(notification);
+    console.log("mentionedEmails: ", mentionedEmails);
+    const filteredStudents = [
+      ...new Set([...studentEmails, ...mentionedEmails]),
+    ];
+    console.log("filteredStudents: ", filteredStudents);
+
+    // Check if the notified emails are valid and not suspended
+    const validStudents = await getValidStudentsByEmails(filteredStudents);
+    console.log("validStudents: ", validStudents);
+
+    res.status(HTTP_CODE_SUCCESS).json({
+      recipients: validStudents,
+    });
   } catch (error: any) {
     console.error("error > ", error);
     res.status(HTTP_CODE_SERVER_ERROR).json({ error: SERVER_ERROR });
