@@ -32,4 +32,30 @@ Run a migration if schema changed. Otherwise npm will show some error
 npx prisma migrate dev
 ```
 
+### Docker Deployment
+```bash
+# To publish the image in the docker hub
+docker tag <local-image>:<tag> <dockerhub-username>/<repo-name>:<tag>
+
+GIT_SHA=$(git rev-parse --short HEAD)
+
+docker tag teachers-portal-app:$GIT_SHA mrakshaydude/teachers-portal-app:$GIT_SHA
+
+docker push johndoe/express-app:latest
+
+# Local build with Git hash
+docker build -t mrakshaydude/teachers-portal-app:$GIT_SHA --build-arg GIT_SHA=$GIT_SHA .
+
+# Build and push in one go
+docker build -t akshayhere/teachers-portal-app:$GIT_SHA .
+docker push akshayhere/teachers-portal-app:$GIT_SHA
+
+GIT_SHA=$(git rev-parse --short HEAD)
+docker build -t akshayhere/teachers-portal-app:$GIT_SHA --build-arg GIT_SHA=$GIT_SHA .
+docker push akshayhereteachers-portal-app:$GIT_SHA
+docker tag akshayhere/teachers-portal-app:$GIT_SHA akshayhere/teachers-portal-app:latest
+docker push akshayhere/teachers-portal-app:latest
+
+```
+
 [BRD](https://gist.github.com/d3hiring/4d1415d445033d316c36a56f0953f4ef)
