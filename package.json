@@ -12,7 +12,7 @@
     "generate": "npx prisma generate",
     "lint": "eslint . --ext .js,.ts",
     "lint:fix": "eslint . --ext .js,.ts --fix",
-    "test": "jest --passWithNoTests",
+    "test": "jest --config jest.config.ts",
     "test:watch": "jest --watchAll"
   },
   "keywords": [],
