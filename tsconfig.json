@@ -18,6 +18,6 @@
     "moduleResolution": "node", // makes path aliases behave like Node
     "useUnknownInCatchVariables": true
   },
-  "include": ["src", "prisma"],
+  "include": ["src", "prisma", "tests"],
   "exclude": ["node_modules", "dist"]
 }

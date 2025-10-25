@@ -149,7 +149,7 @@ export const sendNotificationForStudents = async (
 ) => {
   const parseResult = teacherNotificationSchema.safeParse(req.body);
   if (!parseResult.success) {
-    return res.status(400).json({
+    return res.status(HTTP_CODE_VALIDATION_ERROR).json({
       message: "Validation failed",
       errors: parseResult.error.issues.map((err) => ({
         path: err.path.join("."),
@@ -163,6 +163,14 @@ export const sendNotificationForStudents = async (
   console.log("notification: ", notification);
 
   try {
+    // validate if teacher exists
+    const isTeacherExists = await checkIfTeacherExists(teacher);
+    if (!isTeacherExists) {
+      res
+        .status(HTTP_CODE_VALIDATION_ERROR)
+        .json({ message: "The teacher doesn't exist." });
+    }
+
     const studentEmails = await getStudentsByTeacherEmails([teacher]);
     console.log("studentEmails: ", studentEmails);
 
