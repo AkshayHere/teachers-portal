@@ -2,12 +2,27 @@
 
 ## Background
 
-The repository is created to manage the students for teachers.
+This backend project is created using Node.js with ExpressJS and Typescript for managing students and teachers. We are using the below technologies for development.
 
-The below repo can be run locally with by cloning this repo locally and running the below commands in the project folder.
+1. [ExpressJS Framework](https://expressjs.com/)
+2. [Prisma](https://www.prisma.io/) as ORM
+3. [MySQL](https://www.mysql.com/) as database 
+4. [ZOD](https://zod.dev/) for request validations
+5. [Jest](https://jestjs.io/) for creating automated unit tests
+6. [ESLint](https://eslint.org/) for making code quality is ensured to make sure stable builds are generated.
+
+The below project can be run locally with by cloning this repo locally and running the below commands in the project folder.
 Make sure that u have configured and installed [`Docker`](https://www.docker.com/products/docker-desktop/) in your system.
 
 Once you have successfully done that, run the below command to kick start the project.
+
+```bash
+docker compose -f docker-compose.dev.yaml up -d --build
+```
+
+The application has also been containerized and deployed in Docker hub. You may have a look at this under [Docker hub](hub.docker.com/repository/docker/akshayhere/teachers-portal-app/). This docker image has been used for deployment in an AWS EC2 instance as well. You may check that out [here](http://ec2-3-19-77-232.us-east-2.compute.amazonaws.com:3000/).
+
+
 
 ## API Specifications
 
@@ -29,7 +44,7 @@ List all teachers registered within the system.
 
 ### Register new students under teacher
 
-A teacher can register multiple students. A student can also be registered to multiple teachers.
+A teacher can register multiple students. A student can only be registered to a single teachers.
 
 - Endpoint: `POST /api/register`
 - Headers: `Content-Type: application/json`
