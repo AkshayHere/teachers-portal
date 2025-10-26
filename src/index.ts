@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import dotenv from "dotenv";
 import teacherRoutes from "./routes/teacherRoutes";
+import path from 'path';
 
 dotenv.config();
 
@@ -10,7 +11,7 @@ const PORT = process.env.PORT || 3000;
 
 // Default Route
 app.get('/', (req: Request, res: Response) => {
-  res.send('Welcome to Teacher Portal.');
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.use("/api", teacherRoutes);
