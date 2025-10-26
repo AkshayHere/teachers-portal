@@ -25,7 +25,7 @@ model Teacher {
   email     String    @unique
   isActive  Boolean   @default(true)
   createdAt DateTime  @default(now())
-  students  Student[]
+  students  Student[] @relation("TeacherStudents")
 }
 
 model Student {
@@ -33,6 +33,5 @@ model Student {
   email       String   @unique
   createdAt   DateTime @default(now())
   isSuspended Boolean  @default(false)
-  teacherId   Int
-  teacher     Teacher  @relation(fields: [teacherId], references: [id])
+  teachers    Teacher[] @relation("TeacherStudents")
 }

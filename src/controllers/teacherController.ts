@@ -7,7 +7,6 @@ import {
   teacherNotificationSchema,
 } from "schemas/teacherSchema";
 import {
-  HTTP_CODE_DUPLICATE_RECORD,
   HTTP_CODE_SERVER_ERROR,
   HTTP_CODE_SUCCESS,
   HTTP_CODE_SUCCESS_NO_CONTENT,
@@ -15,7 +14,6 @@ import {
   SERVER_ERROR,
 } from "src/constants/generalConstants";
 import {
-  checkIfStudentsExists,
   checkIfTeacherExists,
   extractEmailsFromNotification,
   getStudentsByTeacherEmails,
@@ -46,42 +44,51 @@ export const createTeacher = async (req: Request, res: Response) => {
   }
 
   const { teacher, students } = parseResult.data;
-  // Check if teacher exists, before we insert
-  const isTeacherExists = await checkIfTeacherExists(teacher);
-  if (isTeacherExists) {
-    res
-      .status(HTTP_CODE_DUPLICATE_RECORD)
-      .json({ error: "Teacher email already exists." });
-  }
-
-  const isStudentsExists = await checkIfStudentsExists(students);
-  if (isStudentsExists) {
-    res
-      .status(HTTP_CODE_DUPLICATE_RECORD)
-      .json({ error: "Student email already exists." });
-  }
-
-  const studentsDetails = students.map((student) => {
-    return {
-      email: student,
-    };
-  });
 
   try {
-    const teacherData = await prisma.teacher.create({
-      data: {
+    // Check if teacher exists, before we insert
+    const isTeacherExists = await checkIfTeacherExists(teacher);
+    if (!isTeacherExists) {
+      await prisma.teacher.create({
+        data: {
+          email: teacher,
+        },
+      });
+    }
+
+    // Get all students
+    const studentsDetails = students.map((student) => {
+      return {
+        email: student,
+      };
+    });
+
+    // const isExists = await checkIfStudentsExists(students);
+    // console.log("isExists: ", isExists);
+    console.log("teacher: ", teacher);
+    console.log("studentsDetails: ", studentsDetails);
+
+    await prisma.teacher.upsert({
+      where: { email: teacher },
+      update: {
+        students: {
+          connectOrCreate: studentsDetails.map((student) => ({
+            where: { email: student.email },
+            create: { email: student.email },
+          })),
+        },
+      },
+      create: {
         email: teacher,
         students: {
-          create: studentsDetails,
+          connectOrCreate: studentsDetails.map((student) => ({
+            where: { email: student.email },
+            create: { email: student.email },
+          })),
         },
       },
     });
-    // console.log("teacherData: ", teacherData);
-    if (teacherData) {
-      res.status(HTTP_CODE_SUCCESS_NO_CONTENT).send();
-    } else {
-      res.status(HTTP_CODE_SERVER_ERROR).json({ error: SERVER_ERROR });
-    }
+    res.status(HTTP_CODE_SUCCESS_NO_CONTENT).send();
   } catch (error: unknown) {
     console.error("error: ", error);
     res.status(HTTP_CODE_SERVER_ERROR).json({ error: SERVER_ERROR });

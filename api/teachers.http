@@ -10,7 +10,7 @@ Content-Type: application/json
 
 {
   "teacher": "odin@gmail.com",
-  "students": ["thor@gmail.com", "loki@gmail.com"]
+  "students": ["jane@gmail.com"]
 }
 
 ###

@@ -38,6 +38,21 @@ export const checkIfStudentsExists = async (
   return existingStudents.length > 0;
 };
 
+export const checkIfStudentEmailExists = async (
+  studentEmail: string
+): Promise<boolean> => {
+  const existingStudent = await prisma.student.findMany({
+    where: {
+      email: studentEmail,
+    },
+    select: {
+      email: true,
+    },
+  });
+
+  return existingStudent.length > 0;
+};
+
 export const getTeacherDetailsByTeacherEmails = async (
   teacherEmails: string[]
 ) => {
