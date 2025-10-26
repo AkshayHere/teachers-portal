@@ -20,7 +20,9 @@ Once you have successfully done that, run the below command to kick start the pr
 docker compose -f docker-compose.dev.yaml up -d --build
 ```
 
-The application has also been containerized and deployed in Docker hub. You may have a look at this under [Docker hub](hub.docker.com/repository/docker/akshayhere/teachers-portal-app/). This docker image has been used for deployment in an AWS EC2 instance as well. You may check that out [here](http://ec2-3-19-77-232.us-east-2.compute.amazonaws.com:3000/).
+The application has also been containerized and deployed in Docker hub. You may have a look at this under [Docker hub](hub.docker.com/repository/docker/akshayhere/teachers-portal-app/). 
+
+This docker image has been used for deployment in an AWS EC2 instance as well. You may check that out [here](http://ec2-3-19-77-232.us-east-2.compute.amazonaws.com:3000/).
 
 
 
