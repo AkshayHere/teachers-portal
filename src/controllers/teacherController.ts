@@ -46,9 +46,6 @@ export const createTeacher = async (req: Request, res: Response) => {
   }
 
   const { teacher, students } = parseResult.data;
-  console.log("teacher: ", teacher);
-  console.log("students: ", students);
-
   // Check if teacher exists, before we insert
   const isTeacherExists = await checkIfTeacherExists(teacher);
   if (isTeacherExists) {
@@ -69,7 +66,6 @@ export const createTeacher = async (req: Request, res: Response) => {
       email: student,
     };
   });
-  console.log("studentsDetails: ", studentsDetails);
 
   try {
     const teacherData = await prisma.teacher.create({
@@ -80,7 +76,7 @@ export const createTeacher = async (req: Request, res: Response) => {
         },
       },
     });
-    console.log("teacherData: ", teacherData);
+    // console.log("teacherData: ", teacherData);
     if (teacherData) {
       res.status(HTTP_CODE_SUCCESS_NO_CONTENT).send();
     } else {
@@ -95,11 +91,11 @@ export const createTeacher = async (req: Request, res: Response) => {
 export const getCommonStudents = async (req: Request, res: Response) => {
   const parseResult = getCommonStudentsQuerySchema.parse(req.query);
   const teacherEmails = parseResult.teacher;
-  console.log("teacherEmails: ", teacherEmails);
+  // console.log("teacherEmails: ", teacherEmails);
 
   try {
     const studentDetails = await getStudentsByTeacherEmails(teacherEmails);
-    console.log("studentDetails: ", studentDetails);
+    // console.log("studentDetails: ", studentDetails);
     res.json({ students: studentDetails });
   } catch (error: unknown) {
     console.error("error > ", error);
@@ -126,11 +122,11 @@ export const suspendStudentByEmail = async (req: Request, res: Response) => {
   }
 
   const { student } = parseResult.data;
-  console.log("student: ", student);
+  // console.log("student: ", student);
 
   try {
     const isSuspended = await suspendStudent(student);
-    console.log("isSuspended: ", isSuspended);
+    // console.log("isSuspended: ", isSuspended);
     if (!isSuspended) {
       res
         .status(HTTP_CODE_VALIDATION_ERROR)
@@ -159,8 +155,6 @@ export const sendNotificationForStudents = async (
   }
 
   const { teacher, notification } = parseResult.data;
-  console.log("teacher: ", teacher);
-  console.log("notification: ", notification);
 
   try {
     // validate if teacher exists
@@ -172,19 +166,17 @@ export const sendNotificationForStudents = async (
     }
 
     const studentEmails = await getStudentsByTeacherEmails([teacher]);
-    console.log("studentEmails: ", studentEmails);
 
     // Get notified emails
     const mentionedEmails = extractEmailsFromNotification(notification);
-    console.log("mentionedEmails: ", mentionedEmails);
     const filteredStudents = [
       ...new Set([...studentEmails, ...mentionedEmails]),
     ];
-    console.log("filteredStudents: ", filteredStudents);
+    // console.log("filteredStudents: ", filteredStudents);
 
     // Check if the notified emails are valid and not suspended
     const validStudents = await getValidStudentsByEmails(filteredStudents);
-    console.log("validStudents: ", validStudents);
+    // console.log("validStudents: ", validStudents);
 
     res.status(HTTP_CODE_SUCCESS).json({
       recipients: validStudents,

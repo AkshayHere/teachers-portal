@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import dotenv from "dotenv";
-import userRoutes from "./routes/userRoutes";
+import teacherRoutes from "./routes/teacherRoutes";
 
 dotenv.config();
 
@@ -13,7 +13,7 @@ app.get('/', (req: Request, res: Response) => {
   res.send('Welcome to Teacher Portal.');
 });
 
-app.use("/api", userRoutes);
+app.use("/api", teacherRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

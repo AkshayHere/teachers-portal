@@ -2,7 +2,6 @@ services:
   app:
     build: .
     image: akshayhere/teachers-portal-app
-    # container_name: teachers-portal-app
     ports:
       - "3000:3000"
     env_file:

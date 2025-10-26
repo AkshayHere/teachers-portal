@@ -55,7 +55,6 @@ export const getTeacherDetailsByTeacherEmails = async (
 export const getStudentsByTeacherEmails = async (
   teacherEmails: string[]
 ): Promise<string[]> => {
-  console.log("teacherEmails >> ", teacherEmails);
   const students = await prisma.student.findMany({
     where: {
       teacher: {
@@ -70,14 +69,13 @@ export const getStudentsByTeacherEmails = async (
     },
   });
 
-  console.log("students: ", students);
+  // console.log("students: ", students);
   return students.map((student: IStudent) => student.email);
 };
 
 export const getValidStudentsByEmails = async (
   studentEmails: string[]
 ): Promise<string[]> => {
-  console.log("studentEmails >> ", studentEmails);
   const students = await prisma.student.findMany({
     where: {
       email: { in: studentEmails },
@@ -85,7 +83,7 @@ export const getValidStudentsByEmails = async (
     },
   });
 
-  console.log("students: ", students);
+  // console.log("students: ", students);
   return students.map((student: IStudent) => student.email);
 };
 
@@ -105,20 +103,17 @@ export const checkIfStudentsActive = async (
 export const suspendStudent = async (
   studentEmail: string
 ): Promise<boolean> => {
-  console.log("studentEmail >> ", studentEmail);
+  // console.log("studentEmail >> ", studentEmail);
   // Check if the student is active
   const isExists = checkIfStudentsActive(studentEmail);
-  console.log("isExists >> ", isExists);
   if (!isExists) {
     return false;
   }
 
-  const isUpdated = await prisma.student.update({
+  await prisma.student.update({
     where: { email: studentEmail },
     data: { isSuspended: true },
   });
-
-  console.log("isUpdated : ", isUpdated);
   return true;
 };
 
