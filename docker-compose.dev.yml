@@ -1,19 +1,22 @@
+version: "3.9"
+
 services:
   app:
-    build: .
-    image: akshayhere/teachers-portal-app
-    # container_name: teachers-portal-app
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: teachers-portal-app
     ports:
       - "3000:3000"
     env_file:
-      - .env
+      - .env.dev
     volumes:
-      - .:/app
-      - /app/node_modules
+      - .:/app                
+      - node_modules:/app/node_modules
     depends_on:
       db:
         condition: service_healthy
-    # command: sh -c "npx prisma generate && npx prisma migrate dev && npm run dev"
+    command: sh -c "npm install && npx prisma generate && npx prisma migrate dev && npm run dev"
 
   db:
     image: mysql:8.0
@@ -33,3 +36,4 @@ services:
 
 volumes:
   db_data:
+  node_modules:

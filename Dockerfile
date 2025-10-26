@@ -1,30 +1,37 @@
-FROM node:18-alpine
+# ---------- STAGE 1: Build ----------
+FROM node:18-alpine AS builder
 
-# Set working directory
 WORKDIR /app
 
-# Install dependencies
+# Copy only necessary files first (for better caching)
 COPY package*.json ./
-RUN npm install
-
-# Copy Prisma schema and generate client
-COPY prisma ./prisma/
-# RUN npx prisma generate
-
-COPY .env.example .env
+RUN npm install --production=false
 
 # Copy the rest of the code
 COPY . .
 
-# Build the TypeScript code
+# Generate Prisma client and build TypeScript
+RUN npx prisma generate
 RUN npm run build
 
-# Add entrypoint script
-COPY entrypoint.sh /app/
-RUN chmod +x /app/entrypoint.sh
 
-# Expose the app port (adjust if needed)
+# ---------- STAGE 2: Run ----------
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copy only production dependencies
+COPY package*.json ./
+RUN npm install --production
+
+# Copy built files and Prisma artifacts from builder stage
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+
+# Set environment variables
+ENV NODE_ENV=production
 EXPOSE 3000
 
-# Start the app using entrypoint script
-CMD ["/app/entrypoint.sh"]
+# Run migrations and start app
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
