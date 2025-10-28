@@ -7,26 +7,34 @@ const chance = new Chance();
 
 async function main() {
   console.log("Seeding database...");
-  const users = Array.from({ length: 10 }).map(() => ({
-    name: chance.name(),
+  // Create sample teachers
+  const teachers = Array.from({ length: 10 }).map(() => ({
     email: chance.email(),
   }));
 
-  await prisma.user.createMany({
-    data: users,
-    skipDuplicates: true, // skip duplicates by unique constraint like email
+  await prisma.teacher.createMany({
+    data: teachers,
+    skipDuplicates: true,
   });
 
-  // console.log("Populating teachers database...");
-  // const teachers = Array.from({ length: 10 }).map(() => ({
-  //   email: chance.email(),
-  // }));
+  // Create sample students
+  const students = Array.from({ length: 10 }).map(() => ({
+    email: chance.email(),
+  }));
 
-  // await prisma.teacher.createMany({
-  //   data: teachers,
-  //   skipDuplicates: true,
-  // });
-
+  for (let index = 0; index < students.length; index++) {
+    const studentDetails = students[index];
+    const teacherId = chance.integer({ min: 0, max: 9 });
+    const teacherEmail = teachers[teacherId].email;
+    await prisma.student.create({
+      data: {
+        email: studentDetails.email,
+        teachers: {
+          connect: [{ email: teacherEmail }],
+        },
+      },
+    });
+  }
   console.log("Seeding completed.");
 }
 
