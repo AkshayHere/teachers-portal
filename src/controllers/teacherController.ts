@@ -13,7 +13,9 @@ import {
   HTTP_CODE_VALIDATION_ERROR,
   SERVER_ERROR,
 } from "src/constants/generalConstants";
+import { IStudent } from "src/modals/teacher";
 import {
+  checkIfStudentsExists,
   checkIfTeacherExists,
   extractEmailsFromNotification,
   getStudentsByTeacherEmails,
@@ -57,36 +59,53 @@ export const createTeacher = async (req: Request, res: Response) => {
     }
 
     // Get all students
-    const studentsDetails = students.map((student) => {
+    const studentsDetails = students.map((student: string) => {
       return {
         email: student,
       };
-    });
+    }) as IStudent[];
 
     // const isExists = await checkIfStudentsExists(students);
     // console.log("isExists: ", isExists);
     console.log("teacher: ", teacher);
     console.log("studentsDetails: ", studentsDetails);
 
-    await prisma.teacher.upsert({
+    // Upsert the teacher
+    const teacherDetails = await prisma.teacher.upsert({
       where: { email: teacher },
-      update: {
-        students: {
-          connectOrCreate: studentsDetails.map((student) => ({
-            where: { email: student.email },
-            create: { email: student.email },
-          })),
-        },
-      },
-      create: {
-        email: teacher,
-        students: {
-          connectOrCreate: studentsDetails.map((student) => ({
-            where: { email: student.email },
-            create: { email: student.email },
-          })),
-        },
-      },
+      update: {},
+      create: { email: teacher },
+    });
+
+    studentsDetails.map(async (student) => {
+      const isExists = await checkIfStudentsExists([student.email]);
+      if (isExists) {
+        await prisma.student.updateMany({
+          where: { email: student.email },
+          data: { isSuspended: false },
+        });
+
+        await prisma.teacher.update({
+          where: { id: teacherDetails.id },
+          data: {
+            students: {
+              connect: { email: student.email },
+            },
+          },
+        });
+      } else {
+        await prisma.teacher.update({
+          where: { id: teacherDetails.id },
+          data: {
+            students: {
+              connectOrCreate: {
+                where: { email: student.email },
+                create: { email: student.email, isSuspended: false },
+              },
+            },
+          },
+        });
+      }
     });
     res.status(HTTP_CODE_SUCCESS_NO_CONTENT).send();
   } catch (error: unknown) {
@@ -98,7 +117,7 @@ export const createTeacher = async (req: Request, res: Response) => {
 export const getCommonStudents = async (req: Request, res: Response) => {
   const parseResult = getCommonStudentsQuerySchema.parse(req.query);
   const teacherEmails = parseResult.teacher;
-  // console.log("teacherEmails: ", teacherEmails);
+  console.log("teacherEmails: ", teacherEmails);
 
   try {
     const studentDetails = await getStudentsByTeacherEmails(teacherEmails);

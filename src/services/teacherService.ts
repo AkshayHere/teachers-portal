@@ -72,13 +72,15 @@ export const getStudentsByTeacherEmails = async (
 ): Promise<string[]> => {
   const students = await prisma.student.findMany({
     where: {
-      teacher: {
-        email: { in: teacherEmails },
+      teachers: {
+        some: {
+          email: { in: teacherEmails },
+        },
       },
       isSuspended: false,
     },
     include: {
-      teacher: {
+      teachers: {
         select: { id: true, email: true },
       },
     },
@@ -118,8 +120,6 @@ export const checkIfStudentsActive = async (
 export const suspendStudent = async (
   studentEmail: string
 ): Promise<boolean> => {
-  // console.log("studentEmail >> ", studentEmail);
-  // Check if the student is active
   const isExists = checkIfStudentsActive(studentEmail);
   if (!isExists) {
     return false;
@@ -127,7 +127,12 @@ export const suspendStudent = async (
 
   await prisma.student.update({
     where: { email: studentEmail },
-    data: { isSuspended: true },
+    data: {
+      isSuspended: true,
+      teachers: {
+        set: [],
+      },
+    },
   });
   return true;
 };
