@@ -11,13 +11,14 @@ services:
     env_file:
       - .env.dev
     volumes:
-      - .:/app                
+      - .:/app
       - node_modules:/app/node_modules
     depends_on:
       db:
         condition: service_healthy
-    # command: sh -c "npm install && npx prisma generate && npx prisma migrate dev && npm run dev"
-    command: sh -c "npm install && npx prisma generate && npx prisma db push && npm run seed && npm run dev"
+    command: sh -c "npm install && npx prisma generate && npx prisma migrate dev && npm run seed && npm run dev"
+    # Use `npx prisma migrate dev --name init` or `npx prisma db push` if you have any changes in db side
+    # command: sh -c "npm install && npx prisma generate && npx prisma db push && npm run seed && npm run dev"
 
   db:
     image: mysql:8.0
