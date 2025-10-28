@@ -1,5 +1,9 @@
 ## Reference: https://medium.com/@brbabic/how-to-send-http-request-from-visual-studio-code-e70d9b2ea591
 
+@teacher = tir@nizumwup.my
+@student1 = recuzli@lew.gp
+@student2 = bruce-banner@gmail.com
+
 ###
 GET http://localhost:3000/api/teachers
 Content-Type: application/json
@@ -9,12 +13,12 @@ POST http://localhost:3000/api/teachers/register
 Content-Type: application/json
 
 {
-  "teacher": "odin@gmail.com",
-  "students": ["thor@gmail.com", "loki@gmail.com"]
+  "teacher": "{{teacher}}",
+  "students": ["{{student1}}"]
 }
 
 ###
-GET http://localhost:3000/api/commonstudents?teacher=hulk%40gmail.com&teacher=odin%40gmail.com
+GET http://localhost:3000/api/commonstudents?teacher=tir%40nizumwup.my&teacher=odin%40gmail.com
 Content-Type: application/json
 ###
 
@@ -22,7 +26,7 @@ POST http://localhost:3000/api/suspend
 Content-Type: application/json
 
 {
-  "student": "loki@gmail.com"
+  "student": "{{student1}}"
 }
 
 ###
@@ -33,7 +37,7 @@ POST http://localhost:3000/api/retrievefornotifications
 Content-Type: application/json
 
 {
-  "teacher":  "hulk@gmail.com",
+  "teacher":  "{{teacher}}",
   "notification": "Hello students! @loki@gmail.com @bruce-banner@gmail.com @loki@gmail.com"
 }
 
